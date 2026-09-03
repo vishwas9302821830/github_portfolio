@@ -38,3 +38,8 @@ def get_repository_name():
 def get_all_branches():
     branches=run_git_command("git branch")
     return branches
+
+
+def get_recent_commits():
+    commits=run_git_command("git log --oneline")
+    return commits
