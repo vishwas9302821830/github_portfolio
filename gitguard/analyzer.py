@@ -34,3 +34,7 @@ def get_repository_name():
     repo = path.split("/")[-1]
 
     return  repo
+
+def get_all_branches():
+    branches=run_git_command("git branch")
+    return branches
