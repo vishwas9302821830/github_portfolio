@@ -49,22 +49,25 @@ def get_recent_commits():
     return commits
 
 def get_remote_url():
-    url = run_git_command("git remote get-url origin")
+    try:
+        url = run_git_command("git remote get-url origin")
 
-    if url.startswith("https://"):
-        parts = url.split("/")
-        owner = parts[3]
-        repo = parts[4].removesuffix(".git")
+        if url.startswith("https://"):
+            parts = url.split("/")
+            owner = parts[3]
+            repo = parts[4].removesuffix(".git")
 
-    elif url.startswith("git@github.com:"):
-        parts = url.split(":")[1].split("/")
-        owner = parts[0]
-        repo = parts[1].removesuffix(".git")
+        elif url.startswith("git@github.com:"):
+            parts = url.split(":")[1].split("/")
+            owner = parts[0]
+            repo = parts[1].removesuffix(".git")
 
-    else:
-        raise ValueError("Unsupported GitHub remote URL")
+        else:
+            raise ValueError("Unsupported GitHub remote URL")
 
-    return owner, repo
+        return owner, repo
+    except sp.CalledProcessError:
+        return None
 
 def score():
     branch = get_current_branch()
@@ -131,5 +134,7 @@ def get_github_info(owner,repo):
             print("GitHub API error")
     except URLError:
         print("Unable to connect to GitHub")
+    except (json.JSONDecodeError,KeyError):
+        print("Invalid Github API response")
     else:
         return github_metrics

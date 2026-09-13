@@ -15,8 +15,14 @@ branch_count=git.get_branch_count()
 health_score=git.score()
 score_level=git.score_status(health_score)
 recommendation=git.get_recommendations()
-owner,repo=git.get_remote_url()
-info=git.get_github_info(owner,repo)
+remote=git.get_remote_url()
+if remote is not None:
+    owner,repo=remote
+    info=git.get_github_info(owner,repo)
+else:
+    owner=None
+    repo=None
+    info=None
 
 
 
@@ -57,15 +63,15 @@ print()
 
 print("""GITHUB REPOSITORY
 -------------------""")
-print("Owner:",owner)
-print("Repository Name:",repo)
-print()
 
 if info is not None:
+    print("Owner:",owner)
+    print("Repository Name:",repo)
     print("Stars:",info['stars'])
     print("Forks:",info['forks'])
     print("Open Issues:",info['issues'])
     print("Visibility:",info['visibility'])
-
+else:
+    print("GitHub repository information unavailable")
 
 
