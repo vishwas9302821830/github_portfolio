@@ -1,4 +1,7 @@
 import subprocess as sp
+from urllib import request
+from urllib.error import HTTPError,URLError
+import json
 
 
 def run_git_command(cmd):
@@ -45,6 +48,23 @@ def get_recent_commits():
     commits=run_git_command("git log --oneline")
     return commits
 
+def get_remote_url():
+    url = run_git_command("git remote get-url origin")
+
+    if url.startswith("https://"):
+        parts = url.split("/")
+        owner = parts[3]
+        repo = parts[4].removesuffix(".git")
+
+    elif url.startswith("git@github.com:"):
+        parts = url.split(":")[1].split("/")
+        owner = parts[0]
+        repo = parts[1].removesuffix(".git")
+
+    else:
+        raise ValueError("Unsupported GitHub remote URL")
+
+    return owner, repo
 
 def score():
     branch = get_current_branch()
@@ -91,9 +111,25 @@ def get_recommendations():
     if get_branch_count()==1:
         yield "Create/Use feature branches"
 
-
-
-
-
-
-
+def get_github_info(owner,repo):
+    try:
+        url=f"https://api.github.com/repos/{owner}/{repo}"
+        response=request.urlopen(url)
+        data=response.read()
+        data=data.decode("utf-8")
+        github_info=json.loads(data)
+        github_metrics={"stars":github_info["stargazers_count"],
+                        "forks":github_info["forks_count"],
+                        "issues":github_info["open_issues_count"],
+                        "visibility":github_info["visibility"]}
+    except HTTPError as e:
+        if e.code==404:
+            print('Repository not found')
+        elif e.code==403:
+            print("Access/rate limit issue")
+        else:
+            print("GitHub API error")
+    except URLError:
+        print("Unable to connect to GitHub")
+    else:
+        return github_metrics

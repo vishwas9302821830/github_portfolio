@@ -1,7 +1,9 @@
 import gitguard.analyzer as git
 
+
 print("GitGuard Repository Health Analyzer")
 print("-----------------------------------")
+
 
 repository = git.get_repository_name()
 branch = git.get_current_branch()
@@ -13,6 +15,9 @@ branch_count=git.get_branch_count()
 health_score=git.score()
 score_level=git.score_status(health_score)
 recommendation=git.get_recommendations()
+owner,repo=git.get_remote_url()
+info=git.get_github_info(owner,repo)
+
 
 
 
@@ -47,3 +52,20 @@ print()
 print("Recommendations:")
 for recommend in recommendation:
     print(recommend)
+print()
+
+
+print("""GITHUB REPOSITORY
+-------------------""")
+print("Owner:",owner)
+print("Repository Name:",repo)
+print()
+
+if info is not None:
+    print("Stars:",info['stars'])
+    print("Forks:",info['forks'])
+    print("Open Issues:",info['issues'])
+    print("Visibility:",info['visibility'])
+
+
+
